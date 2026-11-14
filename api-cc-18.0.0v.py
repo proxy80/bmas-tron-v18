@@ -900,8 +900,8 @@ def bmas_v16_cfo_report():
             aud_feed = db_sentry.fetch_recent_logs(50)
         
         total_queries_recorded = len(aud_feed)
-        guardrail_compliant_count = int(total_queries_recorded * 0.94)
-        guardrail_violation_count = total_queries_recorded - guardrail_compliant_count
+        guardrail_compliant_count = sum(1 for r in aud_feed if isinstance(r, dict) and r.get("is_compliant", True))
+        guardrail_violation_count = max(0, total_queries_recorded - guardrail_compliant_count)
         active_theme_name = f"{config_mgr.settings.get('baseline_theme', 'DoD / Defense')} (Sovereign V18 Affinity)"
 
         def make_window_gif(win_num, title, draw_fn):
@@ -2406,7 +2406,7 @@ def route_tron_stargate_cognitive_advisor():
     body = request.get_json(silent=True) or {}
     action_type = str(body.get("action_type") or "ENGAGE_ANALYSIS").upper()
     mode = str(body.get("backend_mode") or _BMAS_V16_STATE.get("backend_mode", "ENSEMBLE_FUSION")).strip()
-    mod_a = str(body.get("model_a") or _BMAS_V16_STATE.get("ollama_model", "deepseek-r1-large:latest")).strip()
+    mod_a = str(body.get("model_a") or _BMAS_V16_STATE.get("ollama_model", "qwen2.5-coder:latest")).strip()
     mod_b = str(body.get("model_b") or _BMAS_V16_STATE.get("secondary_model", "hermes3:latest")).strip()
     is_dual = (mode != "SINGLE_MODEL")
 
