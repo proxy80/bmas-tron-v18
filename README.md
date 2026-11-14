@@ -61,3 +61,9 @@ chmod +x bmas_customer_wizard.sh bmas_reset.sh bmas_rollback.sh
 
 ---
 © 2026 Bare Metal Applied Science LLC. All Rights Reserved.
+
+---
+
+## 🗄️ Database Topology & Galera Integration Note
+* **Default Standalone Mode:** Out-of-the-box deployments utilize our resilient local SQLite Sentry engine (`bmas_sentry_v15.db`), requiring zero external database setup for single-node installations.
+* **Enterprise Multi-Node Galera Mode:** For high-availability multi-node telemetry synchronization, TRON includes the `bmas_galera_sync` native bridge (`:3306`). Enterprise operators are responsible for provisioning their underlying 3-node MariaDB Galera cluster infrastructure; TRON automatically discovers, connects, and synchronizes telemetry across the cluster or falls back gracefully to SQLite if the cluster is unreachable.
