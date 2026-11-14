@@ -53,6 +53,37 @@ if [ ! -f "$PIPER_ONNX" ]; then
 fi
 echo " [+] Verified BMAS Belle Neural Voice Engine (Piper ONNX + SoX Multi-Age Acoustic DSP) ready."
 
+# 2B. Generate Non-Invasive Hardware Manifest CSV for License Registration
+HW_CPU=$(grep -m1 "model name" /proc/cpuinfo 2>/dev/null | cut -d: -f2 | xargs || uname -p)
+HW_RAM=$(free -h 2>/dev/null | awk '/^Mem:/ {print $2}' || echo "Unknown")
+HW_BOARD=$(cat /sys/devices/virtual/dmi/id/board_vendor /sys/devices/virtual/dmi/id/board_name 2>/dev/null | tr '\n' ' ' | xargs || echo "Standard_PCIe")
+if command -v nvidia-smi >/dev/null 2>&1; then
+    HW_GPU=$(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null | head -n1 | tr ',' ' ')
+    HW_STACK="NVIDIA_CUDA_NCCL_Tensor"
+elif command -v rocm-smi >/dev/null 2>&1; then
+    HW_GPU="AMD_Instinct_Radeon_ROCm"
+    HW_STACK="AMD_ROCm_HIP"
+else
+    HW_GPU=$(lspci 2>/dev/null | grep -i -E "vga|3d|display" | head -n1 | cut -d: -f3 | xargs || echo "CPU_Integrated")
+    HW_STACK="CPU_Native_AVX"
+fi
+HW_OS=$(lsb_release -ds 2>/dev/null || uname -sr)
+HW_CSV_LINE="$(date -u +%Y-%m-%dT%H:%M:%SZ),$(hostname -s),${HW_CPU},${HW_RAM},${HW_BOARD},${HW_GPU},${HW_STACK},${HW_OS}"
+echo "Timestamp_UTC,Hostname,CPU_Model,RAM_Total,Motherboard_Chipset,GPU_Accelerator,Compute_Stack,OS_Kernel" > bmas_node_registration.csv
+echo "$HW_CSV_LINE" >> bmas_node_registration.csv
+echo " [+] Generated Hardware Registration Manifest: bmas_node_registration.csv"
+
+# 2C. Version-Agnostic Apodex Mini GGUF (v1.1 / v1.1.1 / v1.2+) Auto-Discovery on Port 8002
+mkdir -p "$HOME/io-models"
+APODEX_GGUF=$(find "$HOME/io-models" -maxdepth 1 -iname "*apodex*.gguf" 2>/dev/null | sort -V | tail -n 1)
+if [ -n "$APODEX_GGUF" ]; then
+    echo " [+] Detected Apodex GGUF Model: $(basename "$APODEX_GGUF") -> Ready for Port 8002 (--alias apodex)"
+else
+    echo " [i] Apodex 21GB GGUF Slot (~/io-models/): Compatible with ANY Apodex-1.1 / 1.1.x+ .gguf release."
+    echo "     (System will use Sovereign Fallback qwen2.5:1.5b on :11434 until an Apodex .gguf is placed in ~/io-models/)"
+fi
+
+
 if ! pgrep -f "api_cc_18_0_0v|api-cc-18.0.0v.py" >/dev/null 2>&1; then
     echo " [+] Starting BMAS Sovereign Provisioning Gateway on Port $BMAS_PORT..."
     if [ -f "api-cc-18.0.0v.py" ]; then
