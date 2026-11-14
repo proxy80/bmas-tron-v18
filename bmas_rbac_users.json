@@ -1,0 +1,72 @@
+[
+  {
+    "username": "admin",
+    "display_name": "Appliance Root Admin [EXAMPLE DEPLOYMENT ACCOUNT]",
+    "role": "ROLE_ARCHITECT",
+    "department": "Infrastructure Engineering",
+    "email": "admin@appliance.local",
+    "password_hash": "f87a7b9057782699b75597d5d09e2c422c5a767e5ef945598d2c54503795a0db",
+    "mfa_enabled": false,
+    "mfa_pin": "0000",
+    "ad_domain_user": "CORP\\admin",
+    "client_cert_cn": "CN=admin.appliance.local",
+    "is_example_template": true,
+    "active": true
+  },
+  {
+    "username": "cfo_exec",
+    "display_name": "Executive CFO [EXAMPLE TEMPLATE ACCOUNT]",
+    "role": "ROLE_EXECUTIVE_CFO",
+    "department": "Executive FinOps & Governance",
+    "email": "cfo@appliance.local",
+    "password_hash": "a4c9609e6d24e6dbfe44d911e93f0a3e49aab68c44fc87fb65f71232cf2f57e8",
+    "mfa_enabled": false,
+    "mfa_pin": "1111",
+    "ad_domain_user": "CORP\\cfo_exec",
+    "client_cert_cn": "CN=cfo_exec.appliance.local",
+    "is_example_template": true,
+    "active": true
+  },
+  {
+    "username": "user_1",
+    "display_name": "User 1 \u2014 FinOps Assistant [EXAMPLE TEMPLATE]",
+    "role": "ROLE_ASSISTANT",
+    "department": "Finance Operations",
+    "email": "user1@appliance.local",
+    "password_hash": "e6fa1812c94bb3dd77085a1eea3e00fcccba1a7e5ee6c54069f98f9b5e77eef5",
+    "mfa_enabled": false,
+    "mfa_pin": "1001",
+    "ad_domain_user": "CORP\\user_1",
+    "client_cert_cn": "CN=user_1.appliance.local",
+    "is_example_template": true,
+    "active": true
+  },
+  {
+    "username": "user_2",
+    "display_name": "User 2 \u2014 Compliance Assistant [EXAMPLE TEMPLATE]",
+    "role": "ROLE_ASSISTANT",
+    "department": "Compliance & Auditing",
+    "email": "user2@appliance.local",
+    "password_hash": "2e607fb8b70082b6599c67515bf5b525d88f908abf91104078a38f2945b56313",
+    "mfa_enabled": false,
+    "mfa_pin": "1002",
+    "ad_domain_user": "CORP\\user_2",
+    "client_cert_cn": "CN=user_2.appliance.local",
+    "is_example_template": true,
+    "active": true
+  },
+  {
+    "username": "user_3",
+    "display_name": "User 3 \u2014 Cluster NOC Operator [EXAMPLE TEMPLATE]",
+    "role": "ROLE_OPERATOR",
+    "department": "Cluster Operations",
+    "email": "user3@appliance.local",
+    "password_hash": "f24bf24a99540e0c84836d7c015e56cc306d37835ab09a3b7094a7cfe24bd690",
+    "mfa_enabled": false,
+    "mfa_pin": "1003",
+    "ad_domain_user": "CORP\\user_3",
+    "client_cert_cn": "CN=user_3.appliance.local",
+    "is_example_template": true,
+    "active": true
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "INFERENCE_CORE_1",
+    "name": "Stargate Primary (qwen2.5-coder:latest) + Secondary (qwen2.5:1.5b)",
+    "host": "127.0.0.1",
+    "port": 11434,
+    "protocol": "http",
+    "endpoint": "/api/generate",
+    "model_name": "qwen2.5-coder:latest + qwen2.5:1.5b [ENSEMBLE_FUSION]",
+    "node_type": "LOCAL",
+    "gpu_index": 0,
+    "vram_gb": 8.0,
+    "cost_per_1k_tokens": 0.0,
+    "enabled": true,
+    "max_concurrent_slots": 2,
+    "stargate_mode": "ENSEMBLE_FUSION",
+    "chevron_a": "qwen2.5-coder:latest",
+    "chevron_b": "qwen2.5:1.5b"
+  },
+  {
+    "id": "Apodex Mini 1.1v",
+    "name": "Apodex Gateway (:5000) -> qwen2.5:1.5b",
+    "host": "192.168.1.114",
+    "port": 8080,
+    "protocol": "http",
+    "endpoint": "/completion",
+    "model_name": "Apodex Mini 1.1v (:5000) [qwen2.5-coder:latest + qwen2.5:1.5b]",
+    "node_type": "CLOUD",
+    "gpu_index": 1,
+    "vram_gb": 16.0,
+    "cost_per_1k_tokens": 0.0025,
+    "enabled": true,
+    "max_concurrent_slots": 4,
+    "stargate_mode": "ENSEMBLE_FUSION",
+    "chevron_a": "qwen2.5-coder:latest",
+    "chevron_b": "qwen2.5:1.5b"
+  }
+]

@@ -1,0 +1,65 @@
+{
+  "security_mode": "LAB_OPEN_MODE",
+  "enforce_rbac": false,
+  "require_server_tls": false,
+  "require_client_cert_mtls": false,
+  "default_lab_user": "admin",
+  "session_timeout_minutes": 480,
+  "active_directory": {
+    "enabled": false,
+    "simulation_lab_mode": true,
+    "ldap_uri": "ldaps://dc01.enterprise.local:636",
+    "domain_netbios": "CORP",
+    "base_dn": "DC=enterprise,DC=local",
+    "bind_dn": "CN=svc_bmas_ldap,OU=ServiceAccounts,DC=enterprise,DC=local",
+    "group_mapping": {
+      "CN=BMAS_Admins,OU=Groups": "ROLE_ARCHITECT",
+      "CN=BMAS_Executives,OU=Groups": "ROLE_EXECUTIVE_CFO",
+      "CN=BMAS_Assistants,OU=Groups": "ROLE_ASSISTANT",
+      "CN=BMAS_Operators,OU=Groups": "ROLE_OPERATOR"
+    }
+  },
+  "dod_pki_settings": {
+    "require_dod_ca_chain": false,
+    "accepted_cert_extensions": [
+      ".crt",
+      ".pem",
+      ".cer",
+      ".key",
+      ".csr"
+    ],
+    "crl_check_mode": "OPTIONAL_LAB",
+    "active_server_cert_id": "NONE",
+    "active_ca_bundle_id": "NONE"
+  },
+  "bmas_subscription": {
+    "eula_accepted": false,
+    "eula_accepted_at": "",
+    "wizard_completed": false,
+    "license_tier": "UNLICENSED_EVALUATION_REQUIRED",
+    "license_key": "",
+    "install_epoch": 0,
+    "host_node_fingerprint": "",
+    "eval_seal": "",
+    "force_suspended_demo": false,
+    "enabled_architectures": [
+      "OLLAMA",
+      "GGUF_MMAP",
+      "MOE_VLLM",
+      "EXTERNAL_VAULT"
+    ],
+    "network_proxy": {
+      "http_proxy": "",
+      "https_proxy": "",
+      "no_proxy": "localhost,127.0.0.1,10.50.21.0/24"
+    },
+    "galera_cluster": {
+      "primary_ip": "10.50.21.142",
+      "port": 3306,
+      "db_user": "bmas_admin",
+      "sqlite_fallback_db": "bmas_sentry_v15.db",
+      "auto_sync_on_connect": true
+    },
+    "target_industry_affinity": "DOD_TACTICAL"
+  }
+}
