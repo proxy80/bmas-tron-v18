@@ -1,0 +1,47 @@
+{
+  "version": "V17.0.0",
+  "company_title": "BARE METAL APPLIED SCIENCE LLC // INFERENCE COMMAND CENTER",
+  "subtitle_hardware": "CLUSTER HARDWARE: NVIDIA GeForce RTX 3070 (8GB VRAM) + MULTI-NODE GALERA SENTRY",
+  "baseline_theme": "HPC Infrastructure",
+  "custom_theme_name": "Custom Enterprise",
+  "custom_theme_keywords": [
+    "audit",
+    "budget",
+    "compliance",
+    "forecast",
+    "revenue"
+  ],
+  "skin_3d_mode": "earth_moon",
+  "monthly_cloud_budget_usd": 100.0,
+  "estimated_employee_count": 50,
+  "cloud_cost_per_drifted_query_usd": 0.045,
+  "enable_semantic_cache": true,
+  "semantic_cache_threshold": 0.88,
+  "enable_web_youtube_discovery": true,
+  "enable_continuous_batching": true,
+  "max_batch_window_ms": 45,
+  "max_batch_size": 8,
+  "max_queue_depth_warning": 12,
+  "max_queue_depth_critical": 30,
+  "webgl_max_branches": 60,
+  "heartbeat_interval_sec": 0.35,
+  "mariadb_galera_dsn": "mysql+pymysql://root:1312@10.50.21.142:3306/sentry",
+  "prefer_mariadb": true,
+  "galera_cluster_nodes": [
+    {
+      "name": "galera-node1",
+      "host": "10.50.21.142",
+      "port": 3306
+    },
+    {
+      "name": "galera-node2",
+      "host": "10.50.21.152",
+      "port": 3306
+    },
+    {
+      "name": "galera-node3",
+      "host": "10.50.21.199",
+      "port": 3306
+    }
+  ]
+}
