@@ -67,3 +67,27 @@ chmod +x bmas_customer_wizard.sh bmas_reset.sh bmas_rollback.sh
 ## 🗄️ Database Topology & Galera Integration Note
 * **Default Standalone Mode:** Out-of-the-box deployments utilize our resilient local SQLite Sentry engine (`bmas_sentry_v15.db`), requiring zero external database setup for single-node installations.
 * **Enterprise Multi-Node Galera Mode:** For high-availability multi-node telemetry synchronization, TRON includes the `bmas_galera_sync` native bridge (`:3306`). Enterprise operators are responsible for provisioning their underlying 3-node MariaDB Galera cluster infrastructure; TRON automatically discovers, connects, and synchronizes telemetry across the cluster or falls back gracefully to SQLite if the cluster is unreachable.
+
+
+---
+
+## 📖 Enhanced Enterprise User Guidebook & Operator Prerequisites
+
+### 1. What BMAS TRON V18.0.0 Is & Operational Scope
+**BMAS TRON V18.0.0** is an industrial, bare-metal Sovereign AI Gateway and High-Performance Computing (HPC) Command Center engineered for air-gapped defense networks, clinical research institutions, and enterprise data centers:
+- **Multi-Engine Local Inference:** Unifies Ollama (`:11434`), GGUF `llama-server` (`:8002`), Apodex Mini 1.1v baselines, and FastAPI/vLLM bridges (`:8081`) with Stargate dual-chevron routing and 8 industry RAG affinities.
+- **Empirical Hardware & CFO Telemetry:** Live GPU VRAM/clock/wattage telemetry, Shannon token entropy matrices, 3D Stargate routing visualizations, and Executive CFO OpEx audit reports.
+- **Multi-Profile Neural Voice Synthesis (Belle Autopilot & TTS):** Integrated `BMASBelleAutopilot` engine backed by local Piper ONNX neural speech synthesis (`en_US-lessac-medium.onnx`), SoX acoustic pitch/tempo DSP contouring, and multi-age voice profiles.
+- **Zero-Downtime State & High Availability:** SHA-256 atomic snapshot/rollback vault alongside dual-mode telemetry storage (zero-config local SQLite Sentry out of the box, or 3-node MariaDB Galera clustering on `:3306`).
+
+### 2. Required Operator Skillset (Important Notice)
+> **⚠️ ENTERPRISE SYSTEMS ENGINEERING PREREQUISITE:**
+> This appliance is **not** a consumer desktop chat wrapper or a beginner plug-and-play script. Deploying and operating BMAS TRON V18.0.0 requires a Systems Engineer, Principal Infrastructure Architect, or Linux Administrator with proficiency in Ubuntu 24.04 LTS administration, Python 3.12 / compiled Cython shared binaries (`.so`), REST API & X.509 mTLS PKI certificates, and SQLite / MariaDB Galera database topologies.
+
+### 3. Custom Port Override (DoD / KOTS / Enterprise Firewalls)
+By default, the TRON Command Center binds to port **`5000`**. For DoD, KOTS, or enterprise environments where port `5000` is reserved, operators can dynamically bind the appliance to **`8443`** (or any accredited port) at launch:
+```bash
+./bmas_customer_wizard.sh --port 8443
+# Or via environment variable:
+BMAS_PORT=8443 ./bmas_customer_wizard.sh
+```
