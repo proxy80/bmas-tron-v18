@@ -38,7 +38,7 @@
 
 ### 1. Clone the Appliance Repository
 ```bash
-git clone [https://github.com/proxy80/bmas-tron-v18.git](https://github.com/proxy80/bmas-tron-v18.git)
+git clone https://github.com/proxy80/bmas-tron-v18.git
 cd bmas-tron-v18
 ```
 
