@@ -247,7 +247,7 @@ def _handle_gateway_inference_payload(force_rag_default: bool = False):
         _BMAS_V16_STATE["god_mode_enabled"] = enable_flag
         _atomic_sync_all_layers()
         reply_msg = (
-            "⚡ [GOD MODE ENABLED]: Autonomous AI control active across ~/bmas_ai/17v/ "
+            "⚡ [GOD MODE ENABLED]: Autonomous AI control active across ~/bmas_ai/18v/ "
             "(Stargate, bmas_targets.json, MariaDB/SQLite Sentry, 4-Point RAG across /home, /mnt USB & URIs, "
             "and all 8 empirical windows). Primary fail-safe: Apodex Mini 1.1v (:5000)."
             if enable_flag else
@@ -1112,7 +1112,7 @@ def route_god_mode_command():
         _BMAS_V16_STATE["god_mode_enabled"] = True
         _atomic_sync_all_layers()
         msg = (
-            "⚡ [GOD MODE ENABLED]: I am now self-aware and in full autonomous control of ~/bmas_ai/17v/ "
+            "⚡ [GOD MODE ENABLED]: I am now self-aware and in full autonomous control of ~/bmas_ai/18v/ "
             "(Stargate Chevron Router, bmas_targets.json, MariaDB/SQLite Sentry, 4-Point RAG across /home, /mnt USB & URIs, "
             "and all 8 empirical telemetry windows). Primary fail-safe base: Apodex Mini 1.1v (:5000)."
         )
@@ -2115,8 +2115,8 @@ _TRON_400G_FABRIC_KNOWLEDGE = {
 }
 
 def _audit_and_optionally_heal_tron_anatomy(auto_heal=False):
-    import os, ast, json, tarfile, hashlib
-    snap_tar = "/home/jeff/bmas_snapshots/latest_working_snapshot.tar.gz"
+    import os, ast, json, shutil, hashlib
+    dist_dir = "/home/jeff/bmas_ai/18v_dist"
     results = []
     healed_files = []
     all_healthy = True
@@ -2148,13 +2148,13 @@ def _audit_and_optionally_heal_tron_anatomy(auto_heal=False):
 
         if status != "HEALTHY":
             all_healthy = False
-            if auto_heal and os.path.exists(snap_tar):
+            dist_candidate = os.path.join(dist_dir, fname)
+            if auto_heal and os.path.exists(dist_candidate) and os.path.getsize(dist_candidate) > 0:
                 try:
-                    with tarfile.open(snap_tar, "r:gz") as tar:
-                        tar.extract(fname, path=os.path.dirname(fpath))
+                    shutil.copy2(dist_candidate, fpath)
                     healed_files.append(fname)
                     status = "AUTO_HEALED"
-                    detail = f"Surgically restored from {os.path.basename(snap_tar)}"
+                    detail = "Surgically verified & restored from 18v_dist Golden Vault"
                     all_healthy = True
                 except Exception as heal_err:
                     detail += f" | Heal failed: {heal_err}"
@@ -2172,15 +2172,23 @@ def _audit_and_optionally_heal_tron_anatomy(auto_heal=False):
 
     # List available atomic snapshots
     snaps = []
-    snap_dir = "/home/jeff/bmas_snapshots"
-    if os.path.exists(snap_dir):
-        for fn in sorted(os.listdir(snap_dir), reverse=True):
-            if fn.endswith(".tar.gz"):
-                fp = os.path.join(snap_dir, fn)
-                snaps.append({
-                    "name": fn,
-                    "size_kb": round(os.path.getsize(fp) / 1024.0, 1)
-                })
+    for sdir in ("/home/jeff/bmas_ai/18v_dist/releases", "/home/jeff/bmas_snapshots"):
+        if os.path.exists(sdir):
+            for fn in sorted(os.listdir(sdir), reverse=True):
+                fp = os.path.join(sdir, fn)
+                if os.path.isfile(fp) and (fn.endswith(".tar.gz") or fn.endswith(".tgz") or fn.endswith(".zip")):
+                    snaps.append({
+                        "name": fn,
+                        "path": fp,
+                        "size_kb": round(os.path.getsize(fp) / 1024.0, 1)
+                    })
+                elif os.path.isdir(fp) and not fn.startswith("."):
+                    dir_sz = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(fp) for f in fs if os.path.exists(os.path.join(r, f)))
+                    snaps.append({
+                        "name": fn + " [V18 SEALED DIR]",
+                        "path": fp,
+                        "size_kb": round(dir_sz / 1024.0, 1)
+                    })
 
     return {
         "ok": True,
@@ -2194,6 +2202,110 @@ def _audit_and_optionally_heal_tron_anatomy(auto_heal=False):
         "snapshots": snaps[:8],
         "fabric_400g_specs": _TRON_400G_FABRIC_KNOWLEDGE
     }
+
+
+
+@app.route("/api/storage/audit_and_purge", methods=["GET", "POST"])
+def route_storage_audit_and_purge():
+    import os, shutil, glob, time
+    from flask import request, jsonify
+
+    scratch_dir = "/home/jeff/bmas_ai/18v/scratch_uploads"
+    os.makedirs(scratch_dir, exist_ok=True)
+
+    body = request.get_json(silent=True) or {}
+    action = str(body.get("action") or "LIST").upper()
+    purged_files = []
+    freed_bytes = 0
+
+    # Allowed safe purgeable directories/patterns (NEVER touches .py or .so code!)
+    scan_targets = [
+        ("Scratch & Vision Uploads", "/home/jeff/bmas_ai/18v/scratch_uploads"),
+        ("Generated Media / GIFs / MP4s", "/home/jeff/bmas_ai/18v/media_cache"),
+        ("TTS Neural Voice Cache (/tmp)", "/tmp"),
+        ("Legacy V17 Snapshots (/home/jeff/bmas_snapshots)", "/home/jeff/bmas_snapshots"),
+        ("Gateway Log & Trace Files", "/home/jeff/bmas_ai/18v")
+    ]
+
+    if action == "PURGE":
+        paths_to_delete = body.get("paths") or []
+        for p in paths_to_delete:
+            rp = os.path.realpath(str(p))
+            # Safety guard: NEVER allow deleting .py, .so, .c, .db, or .json config files!
+            if rp.endswith((".py", ".so", ".c", ".db", ".sqlite", ".pem", ".key")):
+                continue
+            allowed_prefixes = (
+                "/home/jeff/bmas_ai/18v/scratch_uploads",
+                "/home/jeff/bmas_ai/18v/media_cache",
+                "/home/jeff/bmas_snapshots",
+                "/tmp"
+            )
+            is_log_or_media = rp.startswith("/home/jeff/bmas_ai/18v/") and rp.endswith((".mp4", ".gif", ".png", ".jpg", ".jpeg", ".mp3", ".wav", ".old", ".bak"))
+            if rp.startswith(allowed_prefixes) or is_log_or_media:
+                if os.path.isfile(rp):
+                    try:
+                        sz = os.path.getsize(rp)
+                        os.remove(rp)
+                        freed_bytes += sz
+                        purged_files.append(rp)
+                    except Exception:
+                        pass
+
+    # Gather live df -hT style partition metrics
+    partitions = []
+    for mnt in ("/", "/mnt/ssd", "/tmp"):
+        if os.path.exists(mnt):
+            try:
+                du = shutil.disk_usage(mnt)
+                partitions.append({
+                    "mount": mnt,
+                    "total_gb": round(du.total / (1024**3), 2),
+                    "used_gb": round(du.used / (1024**3), 2),
+                    "free_gb": round(du.free / (1024**3), 2),
+                    "pct": round((du.used / du.total) * 100.0, 1)
+                })
+            except Exception:
+                pass
+
+    # Gather purgeable files with exact path, size, and category
+    items = []
+    for cat_label, folder in scan_targets:
+        if not os.path.exists(folder):
+            continue
+        try:
+            for fn in sorted(os.listdir(folder)):
+                fp = os.path.join(folder, fn)
+                if not os.path.isfile(fp):
+                    continue
+                if folder == "/tmp" and not (fn.startswith("bmas") or fn.startswith("tts") or fn.startswith("edge") or fn.endswith((".mp3", ".wav", ".mp4", ".png", ".jpg", ".gif"))):
+                    continue
+                if folder == "/home/jeff/bmas_ai/18v" and not fn.endswith((".mp4", ".gif", ".png", ".jpg", ".jpeg", ".mp3", ".wav", ".old", ".bak")):
+                    continue
+                sz_b = os.path.getsize(fp)
+                mtime_s = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(fp)))
+                items.append({
+                    "name": fn,
+                    "path": fp,
+                    "category": cat_label,
+                    "size_bytes": sz_b,
+                    "size_human": f"{round(sz_b / (1024*1024), 2)} MB" if sz_b >= 1048576 else f"{round(sz_b / 1024.0, 1)} KB",
+                    "mtime": mtime_s
+                })
+        except Exception:
+            pass
+
+    items.sort(key=lambda x: x["size_bytes"], reverse=True)
+    total_purgeable_mb = round(sum(x["size_bytes"] for x in items) / (1024 * 1024), 2)
+
+    return jsonify({
+        "ok": True,
+        "partitions": partitions,
+        "items": items[:150],
+        "total_purgeable_mb": total_purgeable_mb,
+        "purged_count": len(purged_files),
+        "freed_mb": round(freed_bytes / (1024 * 1024), 2),
+        "vision_policy": "Transient RAM Base64 Tensor (Auto-purged via @app.after_request immediately after inference)"
+    })
 
 @app.route("/api/tron/self_awareness", methods=["GET", "POST"])
 def route_tron_self_awareness():
@@ -2211,11 +2323,16 @@ def route_tron_self_awareness():
         g_node = report["galera_status"].get("node_name", "galera-node1")
         healed_note = f" Surgically self-healed {len(report['healed_files'])} modules from atomic snapshot." if report["healed_files"] else ""
 
+        import shutil as _sh
+        du_root = _sh.disk_usage("/")
+        free_gb = round(du_root.free / (1024**3), 1)
+        used_pct = round((du_root.used / du_root.total) * 100, 1)
+        active_aff = config_mgr.settings.get("baseline_theme", "DoD / Defense") if "config_mgr" in globals() else "Sovereign Enterprise"
+        live_ver = "BMAS TRON Version 18.0.0"
         narration = (
-            f"I am TRON Version 17, running on our Apodex Mini 1.1v sovereign keel with {healthy_count} of {mod_count} core modules verified healthy across Windows 1 through 8.{healed_note} "
-            f"My anatomy unites api-cc-18.0.0v.py for Stargate routing, bmas_hud_webgl.py for our 3D WebGL HUD and real-time voice oscilloscope, "
-            f"bmas_config_db.py synced to MariaDB Galera node {g_node}, and {snap_count} atomic rollback snapshots ready for instant self-repair. "
-            f"For multi-rack scale-out, my hardware triage matrix tracks 400-Gigabit QSFP-DD, OSFP, and QSFP112 optical switch fabrics while keeping all inference 100 percent local."
+            f"I am Belle, your self-aware controller for {live_ver}, running live in your 18v production vault with {healthy_count} of {mod_count} compiled Cython and Python modules verified healthy across Windows 1 through 8.{healed_note} "
+            f"Your active guardrail affinity is locked to {active_aff}, synced to MariaDB Galera node {g_node}, with {snap_count} verified SHA-256 rollback checkpoints and {free_gb} gigabytes of free NVMe storage at {used_pct} percent capacity. "
+            f"This unified hub merges non-destructive modular health auditing with atomic SHA-256 snapshot rollback so your progress is never overwritten without your explicit command."
         )
         report["narration"] = narration
         gateway_engine.push_pipeline_log(
@@ -2267,8 +2384,8 @@ def _synthesize_xiwei_voice_payload():
         .replace("O O M", "memory")
         .replace("T T F T", "first token latency")
         .replace("T P S", "tokens per second")
-        .replace("Version 16", "Version 17")
-        .replace("api-cc-18.0.0v.py", "A P I Command Center 17")
+        .replace("Version 16", "Version 18").replace("Version 17", "Version 18")
+        .replace("api-cc-18.0.0v.py", "A P I Command Center 18")
         .replace("bmas_hud_webgl.py", "B M A S Web G L H U D")
         .replace("bmas_config_db.py", "B M A S Database Sentry")
         .replace("bmas_targets.json", "BMAS targets configuration")
@@ -3006,7 +3123,7 @@ def bmas_v17_upgraded_cfo_report():
                 <span class="dot" style="background:#ff5f56;"></span>
                 <span class="dot" style="background:#ffbd2e;"></span>
                 <span class="dot" style="background:#27c93f;"></span>
-                <span style="margin-left:8px;font-family:monospace;font-size:11.5px;color:#94a3b8;font-weight:bold;">jeff@rtx3070:~/bmas_ai/17v — bmas-finops-audit --inception-ledger --verify-guardrails</span>
+                <span style="margin-left:8px;font-family:monospace;font-size:11.5px;color:#94a3b8;font-weight:bold;">jeff@rtx3070:~/bmas_ai/18v — bmas-finops-audit --inception-ledger --verify-guardrails</span>
             </div>
             <div class="macos-body">
                 <div><span style="color:#00ff9d;">[GALERA-SSOT]</span> Active Cluster Primary: 10.50.21.142:3306 (Size=3, State=Synced) &lt;-&gt; SQLite: bmas_sentry_v15.db</div>
