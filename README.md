@@ -91,3 +91,14 @@ By default, the TRON Command Center binds to port **`5000`**. For DoD, KOTS, or 
 # Or via environment variable:
 BMAS_PORT=8443 ./bmas_customer_wizard.sh
 ```
+
+---
+
+## 🛡️ Enterprise Identity, Zero-Trust RBAC & DoD Authentication (`bmas_enterprise_auth.so`)
+
+BMAS TRON V18.0.0 includes a compiled, zero-dependency Cython authentication engine designed for air-gapped DoD, banking, and sovereign enterprise environments:
+
+* **🏢 Enterprise Active Directory & OpenLDAP (`AD_LDAP`)**: Native LDAP/LDAPS bind verification (`ldap://` / `ldaps://`) with domain group mapping (`Principal Architect`, `System Administrator`, `Security Auditor`).
+* **🐧 Linux SSSD & PAM Integration (`SSSD_PAM`)**: Direct `pam_sss.so` host pipe authentication for RHEL, Rocky Linux, and Ubuntu appliances joined via `realm join` / `sssd`.
+* **🔐 DoD RADIUS & RSA SecurID (`RADIUS_RSA` — RFC 2865)**: Pure-Python UDP 1812 client with MD5 attribute encryption supporting standard RADIUS `Access-Request` (Code 1), `Access-Accept` (Code 2), and multi-factor RSA SecurID `Access-Challenge` (Code 11) pin/token workflows.
+* **⏳ DISA STIG Session Hardening**: Enforced 15-minute cryptographic idle-lock overlay (**Apodex Mini Virtual Eye**) with automatic Sovereign Local Vault (FNV-1a / Ed25519) offline failover.
