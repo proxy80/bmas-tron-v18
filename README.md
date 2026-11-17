@@ -102,3 +102,29 @@ BMAS TRON V18.0.0 includes a compiled, zero-dependency Cython authentication eng
 * **🐧 Linux SSSD & PAM Integration (`SSSD_PAM`)**: Direct `pam_sss.so` host pipe authentication for RHEL, Rocky Linux, and Ubuntu appliances joined via `realm join` / `sssd`.
 * **🔐 DoD RADIUS & RSA SecurID (`RADIUS_RSA` — RFC 2865)**: Pure-Python UDP 1812 client with MD5 attribute encryption supporting standard RADIUS `Access-Request` (Code 1), `Access-Accept` (Code 2), and multi-factor RSA SecurID `Access-Challenge` (Code 11) pin/token workflows.
 * **⏳ DISA STIG Session Hardening**: Enforced 15-minute cryptographic idle-lock overlay (**Apodex Mini Virtual Eye**) with automatic Sovereign Local Vault (FNV-1a / Ed25519) offline failover.
+
+---
+
+## Bare-Metal & DoD Air-Gapped Pre-Flight Model Staging Guide
+
+Before deploying **BMAS TRON V18.0.0** onto a bare-metal server or air-gapped enclave, operators must ensure that the target administrator account has read/execute access to a working **Ollama** runtime and/or pre-staged **GGUF** model weights.
+
+### 1. Pre-Installation Model Preparation (Connected Staging -> Air-Gapped Target)
+In DoD and enterprise environments where target nodes are air-gapped, model weights must be downloaded on an authorized staging workstation and transferred to the target server via accredited internal storage (`/mnt/...`, NFS/SAN share, or the designated administrator home directory):
+
+* **Verify Ollama Service:** Ensure Ollama is installed and running under the administrator's service account (`ollama list`).
+* **Pull Recommended Baseline Models Prior to Air-Gapping:**
+  * **Sovereign Lightweight Fallback (Required Baseline):** `ollama pull qwen2.5:1.5b` or `ollama pull gemma:2b`
+  * **Enterprise Reasoning & Multimodal:** `ollama pull llama3.3:latest`, `ollama pull qwen3.8:latest`, `ollama pull gemma4:12b`, or `ollama pull llava:latest`
+  * **Code & Security Audit:** `ollama pull qwen2.5-coder:latest` or `ollama pull deepseek-r1:latest`
+* **Apodex Mini GGUF Slot (`:8002`):** Stage your `apodex*.gguf` (v1.1 / v1.1.x+) weight file inside `~/io-models/` or any mounted enterprise directory (e.g., `/mnt/models/`).
+
+### 2. Multi-Topology Installer Flags (`bmas_customer_wizard.sh`)
+During installation, `./bmas_customer_wizard.sh` automatically audits `ollama list` and prompts the operator for their model storage location. Operators can also bind paths non-interactively via CLI flags:
+* **Default Home Directory:** `./bmas_customer_wizard.sh`
+* **Mounted DoD / NAS Storage:** `./bmas_customer_wizard.sh --port 8443 --model-path /mnt/enterprise_ai_models`
+* **Remote Enterprise URI Gateway:** `./bmas_customer_wizard.sh --port 8443 --model-path [https://llm-gateway.internal.mil/v1](https://llm-gateway.internal.mil/v1) --ollama-host [http://10.10.20.5:11434](http://10.10.20.5:11434)`
+
+### 3. Third-Party Model Availability & Forward-Compatibility Disclaimer
+* **Upstream Model Availability:** Third-party open-weight models listed above are maintained by their respective upstream publishers. **Bare Metal Applied Science LLC** does not control upstream repository retention. If a specific model tag is deprecated or superseded upstream, operators should substitute the latest stable release family available at deployment time.
+* **Zero-Breakage API Guarantee:** The BMAS TRON V18.0.0 Stargate engine communicates strictly via standardized REST/JSON inference schemas (`:11434/api/tags`, `:8002/v1/chat/completions`, and `:8081`). Substituting newer model versions or updated parameter tags will **not** break the appliance control plane, telemetry, or RBAC security modules.
