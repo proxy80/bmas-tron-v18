@@ -58,8 +58,8 @@ fi
 
 if [ ! -f "$PIPER_ONNX" ]; then
     echo " [+] Checking for BMAS Belle Neural Voice Model (en_US-lessac-medium.onnx)..."
-    curl -sL --connect-timeout 5 "[https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx](https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx)" -o "$PIPER_ONNX" 2>/dev/null || true
-    curl -sL --connect-timeout 5 "[https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json](https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json)" -o "$PIPER_JSON" 2>/dev/null || true
+    curl -sL --connect-timeout 5 "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx" -o "$PIPER_ONNX" 2>/dev/null || true
+    curl -sL --connect-timeout 5 "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json" -o "$PIPER_JSON" 2>/dev/null || true
 fi
 echo " [+] Verified BMAS Belle Neural Voice Engine (Piper ONNX + SoX Multi-Age Acoustic DSP) ready."
 
@@ -91,7 +91,7 @@ if [ -z "$BMAS_MODEL_PATH" ] && [ "$NON_INTERACTIVE" -eq 0 ] && [ -t 0 ]; then
     echo " Specify your pre-staged Inference Model source:"
     echo "   * Local / Admin Home Directory (default: $HOME/io-models)"
     echo "   * DoD / Enterprise Mounted Storage (e.g., /mnt/nas/models or /opt/models)"
-    echo "   * Remote Inference API URI (e.g., [http://<YOUR_GATEWAY_HOST_OR_IP>:8002/v1](http://<YOUR_GATEWAY_HOST_OR_IP>:8002/v1))"
+    echo "   * Remote Inference API URI (e.g., http://<YOUR_GATEWAY_HOST_OR_IP>:8002/v1)"
     read -r -t 30 -p " -> Enter path or URI [Press ENTER for default $HOME/io-models]: " USER_INPUT_PATH || true
     echo ""
     BMAS_MODEL_PATH="${USER_INPUT_PATH:-$HOME/io-models}"
