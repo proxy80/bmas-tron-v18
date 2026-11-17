@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
 
 BMAS_PORT="${BMAS_PORT:-5000}"
 BMAS_MODEL_PATH="${BMAS_MODEL_PATH:-}"
-OLLAMA_HOST_URI="${OLLAMA_HOST:-[http://127.0.0.1:11434](http://127.0.0.1:11434)}"
+OLLAMA_HOST_URI="${OLLAMA_HOST:-http://127.0.0.1:11434}"
 NON_INTERACTIVE=0
 
 while [[ $# -gt 0 ]]; do
