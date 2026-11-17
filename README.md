@@ -123,7 +123,7 @@ In DoD and enterprise environments where target nodes are air-gapped, model weig
 During installation, `./bmas_customer_wizard.sh` automatically audits `ollama list` and prompts the operator for their model storage location. Operators can also bind paths non-interactively via CLI flags:
 * **Default Home Directory:** `./bmas_customer_wizard.sh`
 * **Mounted DoD / NAS Storage:** `./bmas_customer_wizard.sh --port 8443 --model-path /mnt/enterprise_ai_models`
-* **Remote Enterprise URI Gateway:** `./bmas_customer_wizard.sh --port 8443 --model-path https://llm-gateway.internal.mil/v1 --ollama-host http://10.10.20.5:11434`
+* **Remote Enterprise URI Gateway:** `./bmas_customer_wizard.sh --port 8443 --model-path https://<YOUR_GATEWAY_HOST_OR_IP>/v1 --ollama-host http://<YOUR_OLLAMA_SERVER_IP>:11434`
 
 ### 3. Third-Party Model Availability & Forward-Compatibility Disclaimer
 * **Upstream Model Availability:** Third-party open-weight models listed above are maintained by their respective upstream publishers. **Bare Metal Applied Science LLC** does not control upstream repository retention. If a specific model tag is deprecated or superseded upstream, operators should substitute the latest stable release family available at deployment time.

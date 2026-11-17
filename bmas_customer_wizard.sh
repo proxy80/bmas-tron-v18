@@ -91,7 +91,7 @@ if [ -z "$BMAS_MODEL_PATH" ] && [ "$NON_INTERACTIVE" -eq 0 ] && [ -t 0 ]; then
     echo " Specify your pre-staged Inference Model source:"
     echo "   * Local / Admin Home Directory (default: $HOME/io-models)"
     echo "   * DoD / Enterprise Mounted Storage (e.g., /mnt/nas/models or /opt/models)"
-    echo "   * Remote Inference API URI (e.g., [http://10.0.0.50:8002/v1](http://10.0.0.50:8002/v1))"
+    echo "   * Remote Inference API URI (e.g., [http://<YOUR_GATEWAY_HOST_OR_IP>:8002/v1](http://<YOUR_GATEWAY_HOST_OR_IP>:8002/v1))"
     read -r -t 30 -p " -> Enter path or URI [Press ENTER for default $HOME/io-models]: " USER_INPUT_PATH || true
     echo ""
     BMAS_MODEL_PATH="${USER_INPUT_PATH:-$HOME/io-models}"
