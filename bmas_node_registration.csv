@@ -1,0 +1,2 @@
+Timestamp_UTC,Hostname,CPU_Model,RAM_Total,Motherboard_Chipset,GPU_Accelerator,Compute_Stack,OS_Kernel
+2026-11-17T17:32:26Z,rtx3070,AMD Ryzen 5 4500 6-Core Processor,62Gi,Micro-Star International Co., Ltd. B550-A PRO (MS-7C56),NVIDIA GeForce RTX 3070  8192 MiB,NVIDIA_CUDA_NCCL_Tensor,Ubuntu 24.04.3 LTS

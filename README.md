@@ -128,3 +128,92 @@ During installation, `./bmas_customer_wizard.sh` automatically audits `ollama li
 ### 3. Third-Party Model Availability & Forward-Compatibility Disclaimer
 * **Upstream Model Availability:** Third-party open-weight models listed above are maintained by their respective upstream publishers. **Bare Metal Applied Science LLC** does not control upstream repository retention. If a specific model tag is deprecated or superseded upstream, operators should substitute the latest stable release family available at deployment time.
 * **Zero-Breakage API Guarantee:** The BMAS TRON V18.0.0 Stargate engine communicates strictly via standardized REST/JSON inference schemas (`:11434/api/tags`, `:8002/v1/chat/completions`, and `:8081`). Substituting newer model versions or updated parameter tags will **not** break the appliance control plane, telemetry, or RBAC security modules.
+
+---
+
+## Passive API Monitoring & Ox Mini Domain Auditing (V18)
+
+TRON V18 includes a non-blocking **Passive API Monitoring** module (`bmas_passive_audit.so`) that audits existing customer AI traffic (OpenAI, Anthropic, or on-prem endpoints) across **Defense, Legal, Finance, and Education** domains without touching live API keys or adding inline latency.
+
+### Ingestion Modes
+1. **Mode 1 — Zero-Friction Passive Mirror (`POST /api/v1/audit/mirror`):**
+   Customers add an asynchronous `mirror` block to their existing Nginx, Envoy, or HAProxy gateway. Live requests pass through untouched; a credential-scrubbed shadow copy is sent to TRON, which responds `202 Accepted` immediately and classifies the prompt out-of-band via the local **Ox Mini** classifier (`qwen2.5:1.5b`).
+2. **Mode 2 — Out-of-Band mTLS Log Ingestion (`POST /api/v1/audit/ingest`):**
+   For air-gapped or zero-trust environments, customers forward prompt logs from a read-only service account over mTLS directly into TRON's SQLite WAL audit ledger (`bmas_passive_audit.db`).
+
+### Example Customer Nginx Mirror Config
+
+    location /v1/chat/completions {
+        mirror /_bmas_audit_mirror;
+        mirror_request_body on;
+        proxy_pass https://customer_live_ai_upstream;
+    }
+
+    location = /_bmas_audit_mirror {
+        internal;
+        proxy_set_header Authorization "";
+        proxy_set_header x-api-key "";
+        proxy_set_header X-BMAS-Source-Host $host;
+        proxy_connect_timeout 200ms;
+        proxy_read_timeout 200ms;
+        proxy_pass http://<TRON_HOST>:5000/api/v1/audit/mirror;
+    }
+
+### WebGL HUD Controls
+Click **`🛰️ PASSIVE AUDIT`** on the TRON `:5000` top bar to:
+- Toggle passive ingestion **ON / OFF** in real time (`/api/v1/audit/toggle`).
+- Fire a 1-click **`⚡ TEST MIRROR`** synthetic Defense payload.
+- Inspect live domain classifications, confidence scores, and SHA-256 prompt hashes (`/api/v1/audit/recent`).
+
+---
+
+## Enterprise Pre-Flight & DISA STIG FAQ (Bare-Metal Deployment)
+
+### 1. What are the minimum bare-metal hardware and OS requirements?
+* **Minimum Production Spec:** x86_64 CPU with AVX2 support, 16 GB+ RAM (64 GB+ recommended for multi-model local inference), NVMe storage, and an optional NVIDIA CUDA GPU (reference validation rig: AMD Ryzen 5 / MSI B550 / 64 GB RAM / NVIDIA RTX 3070).
+* **Supported Operating Systems:** Ubuntu 24.04 LTS (`x86_64`, default GitHub `.so` build) and RHEL 9 / Rocky Linux 9 / Oracle Linux 9 (`x86_64`, delivered via signed RPM / `glibc 2.34` commercial build).
+
+### 2. Which Python version is required, and should I install packages into a `venv`?
+* **Strict Python 3.12 (`cpython-312`):** All compiled `.cpython-312-x86_64-linux-gnu.so` binaries are ABI-bound to Python 3.12.
+* **Isolated Virtual Environment (Required):** Both Ubuntu 24.04 (PEP 668) and Red Hat Enterprise Linux prohibit system-wide root `pip install`. Run `./bmas_customer_wizard.sh` to automatically create and validate an isolated `venv` using `requirements.txt` (`flask`, `requests`, `pymysql`, `cryptography`).
+* **Air-Gapped / Disconnected Enclaves:** Pre-stage wheels on a connected host and install offline:
+  ```bash
+  # On connected staging workstation:
+  pip3.12 download -r requirements.txt -d ./wheels
+
+  # On air-gapped bare-metal target:
+  ./bmas_customer_wizard.sh --wheels-dir ./wheels --port 8443
+  ```
+
+### 3. Where should TRON V18 be installed on a hardened enterprise server?
+* Install under **`/opt/bmas-tron`** owned by a dedicated non-login service account (`bmas-svc:bmas-svc`).
+* Do **not** deploy production services under `/home/` on DISA STIG hosts, as `/home` is typically mounted `noexec` and blocks compiled `.so` and `venv` execution. The wizard automatically detects `noexec` mounts during pre-flight.
+
+### 4. Does TRON V18 support RHEL 9, Rocky Linux 9, and Oracle Linux 9?
+* **Yes.** RHEL 9 ships with Python 3.9 as default; install Python 3.12 from AppStream first:
+  ```bash
+  sudo dnf install -y python3.12 python3.12-pip
+  ```
+* **glibc ABI Note:** The public GitHub `.so` binaries are compiled on Ubuntu 24.04 (`glibc 2.39`). For RHEL 9 / Rocky 9 / Oracle Linux 9 (`glibc 2.34`), request our signed RPM / `glibc 2.34` binary bundle with your license key at `jefferson@baremetalappliedscience.com`.
+
+### 5. Will TRON V18 run with SELinux Enforcing and `fapolicyd` enabled?
+* **SELinux (`Enforcing`):** Label your accredited bind port and allow Nginx/Envoy passive mirror traffic:
+  ```bash
+  sudo semanage port -a -t http_port_t -p tcp 8443
+  sudo setsebool -P httpd_can_network_connect 1
+  ```
+* **`fapolicyd` (RHEL 9 DISA STIG):** Signed RPM deployments are trusted automatically. For tarball or `venv` deployments under `/opt/bmas-tron`, register the appliance directory in the trust database:
+  ```bash
+  sudo fapolicyd-cli --file add /opt/bmas-tron/ --trust-file bmas-tron
+  sudo fapolicyd-cli --update
+  ```
+
+### 6. Does TRON V18 require `root` or a `chroot` jail?
+* **No `root` at runtime.** Avoid raw `chroot` jails, which break local NVIDIA CUDA device access (`/dev/nvidia*`), Ollama loopback sockets (`:11434`), and SSSD/PAM authentication pipes (`/var/lib/sss/pipes`).
+* Use **`systemd` service sandboxing** (`User=bmas-svc`, `ProtectSystem=strict`, `ReadWritePaths=/opt/bmas-tron`, `NoNewPrivileges=yes`, `PrivateTmp=yes`) for DISA STIG-compliant process confinement.
+
+### 7. How do I validate a bare-metal host before launching TRON?
+Run the built-in pre-flight audit without starting the web server:
+```bash
+./bmas_customer_wizard.sh --check-only
+```
