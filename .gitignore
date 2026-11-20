@@ -18,3 +18,5 @@ build/
 __pycache__/
 releases/*.sha256
 releases/*.tar.gz
+
+belle_voice/
