@@ -32,7 +32,7 @@ belle_autopilot = BMASBelleAutopilot()
 #
 # PURPOSE & ARCHITECTURAL LINEAGE (HOW ALL 6 MODULES TIE TOGETHER) :
 #   1. bmas_config_db.py (Module 1)      -> 3-Node LXC MariaDB Galera Cluster
-#      (10.50.21.142, .152, .199, db 'sentry') + local WAL-SQLite
+#      (<GALERA_HOST>:3306, db 'sentry') + local WAL-SQLite
 #      (bmas_sentry_v15.db), <10ms Semantic Cache, OHLC Candlesticks, Empirical
 #      Window #6 3D Vectors, and bmas_god_mode_proposals AST Sandbox table.
 #   2. bmas_auth_pki.py (Module 2)       -> Zero-Lockout LAB_OPEN_MODE, DoD
@@ -1081,7 +1081,7 @@ def bmas_v16_cfo_report():
     <div class="card">
         <h3 style="color:#facc15;margin-top:0;margin-bottom:4px;">🎞️ ALL 6 COMMAND DECK TELEMETRY WINDOWS — SYNCHRONIZED BASE64 ANIMATED GIF SUITE</h3>
         <div style="color:#94a3b8;font-size:13px;margin-bottom:10px;">
-            100% Synchronized with Stargate Lock ({mode}: {active_a}{(' + ' + active_b) if is_dual else ''}), MariaDB Galera Cluster (10.50.21.142), and live hardware telemetry ({vram_used} MB / {vram_tot} MB, {gpu_util}% GPU, {gpu_temp}&deg;C, {gpu_watts}W).
+            100% Synchronized with Stargate Lock ({mode}: {active_a}{(' + ' + active_b) if is_dual else ''}), MariaDB Galera Cluster ({os.environ.get('BMAS_GALERA_HOST', '127.0.0.1')}), and live hardware telemetry ({vram_used} MB / {vram_tot} MB, {gpu_util}% GPU, {gpu_temp}&deg;C, {gpu_watts}W).
         </div>
         <div class="grid6">
             <div class="win-box"><img src="data:image/gif;base64,{gif1}" alt="Window 1 GIF"/></div>
@@ -2065,7 +2065,7 @@ _TRON_ANATOMICAL_SKELETON = [
         "type": "python",
         "component": "MariaDB Galera Cluster & WAL-SQLite Sentry Engine",
         "windows": "Win #3 (Galera Badge), Win #6 (Audit History), Win #7 (Latency Distribution)",
-        "role": "Manages dual-homed state persistence across MariaDB Galera (10.50.21.142) and local WAL-mode bmas_sentry_v15.db."
+        "role": "Manages dual-homed state persistence across MariaDB Galera ({os.environ.get('BMAS_GALERA_HOST', '127.0.0.1')}) and local WAL-mode bmas_sentry_v15.db."
     },
     {
         "file": "bmas_hardware_rag.py",
@@ -3090,7 +3090,7 @@ def bmas_v17_upgraded_cfo_report():
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <div>
             <div class="title">📊 BARE METAL APPLIED SCIENCE LLC — V18.0.0 EXECUTIVE CFO, INCEPTION ENERGY &amp; GUARDRAIL AUDIT</div>
-            <div class="sub">ACTIVE THEME: {active_theme_name} // HARDWARE: RTX 3070 ({vram_tot}MB VRAM) // GALERA 3-NODE SYNC: 10.50.21.142</div>
+            <div class="sub">ACTIVE THEME: {active_theme_name} // HARDWARE: RTX 3070 ({vram_tot}MB VRAM) // GALERA 3-NODE SYNC: {os.environ.get('BMAS_GALERA_HOST', '127.0.0.1')}</div>
         </div>
         <div style="display:flex;gap:10px;">
             <button class="btn" onclick="window.print()">🖨️ PRINT / SAVE LANDSCAPE PDF</button>
@@ -3119,7 +3119,7 @@ def bmas_v17_upgraded_cfo_report():
         <div class="star-grid">
             <div class="star-box">
                 <strong style="color:#00ff9d;">[S] SITUATION — INCEPTION-TO-PRESENT TELEMETRY:</strong><br/>
-                Since appliance genesis on <span style="color:#38bdf8;font-family:monospace;">{ledger['inception_utc']}</span>, the BMAS V18.0.0 Sovereign Appliance has executed <strong>{total_api_calls:,}</strong> multi-domain inference and 4-Point RAG API transactions across local workstation silicon (<span style="font-family:monospace;">rtx3070</span> drawing {gpu_watts}W instantaneous / {vram_used}MB of {vram_tot}MB VRAM) synchronized with our 3-node MariaDB Galera cluster (<span style="font-family:monospace;">10.50.21.142</span>).
+                Since appliance genesis on <span style="color:#38bdf8;font-family:monospace;">{ledger['inception_utc']}</span>, the BMAS V18.0.0 Sovereign Appliance has executed <strong>{total_api_calls:,}</strong> multi-domain inference and 4-Point RAG API transactions across local workstation silicon (<span style="font-family:monospace;">rtx3070</span> drawing {gpu_watts}W instantaneous / {vram_used}MB of {vram_tot}MB VRAM) synchronized with our 3-node MariaDB Galera cluster (<span style="font-family:monospace;">{os.environ.get('BMAS_GALERA_HOST', '127.0.0.1')}</span>).
             </div>
             <div class="star-box" style="border-left-color:#38bdf8;">
                 <strong style="color:#38bdf8;">[T] TASK — ZERO-TRUST GUARDRAIL &amp; FINOPS MANDATE:</strong><br/>
@@ -3143,7 +3143,7 @@ def bmas_v17_upgraded_cfo_report():
                 <span style="margin-left:8px;font-family:monospace;font-size:11.5px;color:#94a3b8;font-weight:bold;">bmas-svc@tron-v18:/opt/bmas-tron — bmas-finops-audit --inception-ledger --verify-guardrails</span>
             </div>
             <div class="macos-body">
-                <div><span style="color:#00ff9d;">[GALERA-SSOT]</span> Active Cluster Primary: 10.50.21.142:3306 (Size=3, State=Synced) &lt;-&gt; SQLite: bmas_sentry_v15.db</div>
+                <div><span style="color:#00ff9d;">[GALERA-SSOT]</span> Active Cluster Primary: {os.environ.get('BMAS_GALERA_HOST', '127.0.0.1')}:3306 (Size=3, State=Synced) &lt;-&gt; SQLite: bmas_sentry_v15.db</div>
                 <div><span style="color:#38bdf8;">[ENERGY-LEDGER]</span> Inception: {ledger['inception_utc']} | Total Draw: {cum_wh:,.2f} Wh ({cum_kwh:.3f} kWh) | Instant GPU: {gpu_watts}W @ {gpu_temp}&deg;C | Efficiency: {wh_per_query} Wh/req</div>
                 <div><span style="color:#facc15;">[API-GUARDRAILS]</span> Total API Calls: {total_api_calls:,} | Compliant: {guardrail_pass:,} ({guardrail_pct}%) | Intercepted Violations: {guardrail_intercepts} | Active PKI Certs: {ledger['pki_certs_verified']}</div>
                 <div><span style="color:#c084fc;">[STARGATE-LOCK]</span> Mode: {mode} | Gate A: {active_a} | Gate B: {active_b if is_dual else 'STANDBY'} | VRAM Governor: {vram_used}/{vram_tot} MB ({vram_pct}%)</div>
@@ -3154,7 +3154,7 @@ def bmas_v17_upgraded_cfo_report():
     <div class="card">
         <h3 style="color:#facc15;margin-top:0;margin-bottom:4px;">🎞️ ALL 6 COMMAND DECK TELEMETRY WINDOWS — SYNCHRONIZED BASE64 ANIMATED GIF SUITE</h3>
         <div style="color:#94a3b8;font-size:13px;margin-bottom:10px;">
-            100% Synchronized with Stargate Lock ({mode}: {active_a}{(' + ' + active_b) if is_dual else ''}), MariaDB Galera Cluster (10.50.21.142), and live hardware telemetry ({vram_used} MB / {vram_tot} MB, {gpu_util}% GPU, {gpu_temp}&deg;C, {gpu_watts}W).
+            100% Synchronized with Stargate Lock ({mode}: {active_a}{(' + ' + active_b) if is_dual else ''}), MariaDB Galera Cluster ({os.environ.get('BMAS_GALERA_HOST', '127.0.0.1')}), and live hardware telemetry ({vram_used} MB / {vram_tot} MB, {gpu_util}% GPU, {gpu_temp}&deg;C, {gpu_watts}W).
         </div>
         <div class="grid6">
             <div class="win-box"><img src="data:image/gif;base64,{gif1}" alt="Window 1 GIF"/></div>

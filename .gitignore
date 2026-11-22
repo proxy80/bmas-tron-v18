@@ -20,3 +20,4 @@ releases/*.sha256
 releases/*.tar.gz
 
 belle_voice/
+venv/

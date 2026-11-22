@@ -193,7 +193,7 @@ log_ok "Virtual environment active: ${VENV_DIR}"
 
 # Verify required Python packages
 MISSING_PKGS=()
-for pkg in flask requests pymysql cryptography; do
+for pkg in flask requests pymysql cryptography psutil; do
   if ! "$VENV_PY" -c "import ${pkg}" 2>/dev/null; then
     MISSING_PKGS+=("$pkg")
   fi
@@ -216,7 +216,7 @@ if (( ${#MISSING_PKGS[@]} > 0 )); then
   fi
   log_ok "All Python runtime dependencies verified inside venv."
 else
-  log_ok "All Python runtime dependencies (flask, requests, pymysql, cryptography) verified."
+  log_ok "All Python runtime dependencies (flask, requests, pymysql, cryptography, psutil) verified."
 fi
 
 # ------------------------------------------------------------------------------
