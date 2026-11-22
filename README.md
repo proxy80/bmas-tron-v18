@@ -217,3 +217,7 @@ Run the built-in pre-flight audit without starting the web server:
 ```bash
 ./bmas_customer_wizard.sh --check-only
 ```
+
+## HTTP Bring-Up & HTTPS / PKI Lock-Down (DoD / Enterprise)
+- **Initial Bring-Up Mode:** By default, BMAS TRON V18 starts on port `5000` (overridable via `--port` or `BMAS_PORT`) in testing/bring-up mode (`secure_https_mode: false`) so operators can validate local health, wizard setup (`/setup`), and PKI certificate import before enforcing TLS.
+- **Mandatory Lock-Down Before Production / DoD Exposure:** Do not leave an unencrypted HTTP endpoint exposed on untrusted or defense networks. Import/register a server certificate in the PKI vault and enable HTTPS / TLS 1.2+ enforcement via `/api/pki/https_interlock` (`enable_https: true`) or terminate TLS/mTLS at an approved reverse proxy (such as Nginx or Envoy) with accredited certificates and firewall/port restrictions.
