@@ -9,6 +9,10 @@ set -euo pipefail
 
 BMAS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BMAS_PORT="${BMAS_PORT:-5000}"
+BMAS_HOST_IP="${BMAS_HOST_IP:-}"
+BMAS_GALERA_HOST="${BMAS_GALERA_HOST:-}"
+BMAS_VLAN_ID="${BMAS_VLAN_ID:-}"
+BMAS_REVERSE_PROXY="${BMAS_REVERSE_PROXY:-}"
 BMAS_MODEL_PATH="${BMAS_MODEL_PATH:-}"
 BMAS_OLLAMA_HOST="${BMAS_OLLAMA_HOST:-http://127.0.0.1:11434}"
 WHEELS_DIR="${BMAS_DIR}/wheels"
@@ -39,6 +43,14 @@ while [[ $# -gt 0 ]]; do
       BMAS_OLLAMA_HOST="$2"; shift 2 ;;
     --wheels-dir)
       WHEELS_DIR="$2"; shift 2 ;;
+    --host-ip)
+      BMAS_HOST_IP="$2"; shift 2 ;;
+    --galera-host)
+      BMAS_GALERA_HOST="$2"; shift 2 ;;
+    --vlan-id)
+      BMAS_VLAN_ID="$2"; shift 2 ;;
+    --reverse-proxy)
+      BMAS_REVERSE_PROXY="$2"; shift 2 ;;
     --check-only)
       CHECK_ONLY=1; shift ;;
     --help|-h)
@@ -48,6 +60,10 @@ Usage: ./bmas_customer_wizard.sh [OPTIONS]
   --model-path <PATH|URI>  Local GGUF/model path or remote inference gateway URI
   --ollama-host <URL>      Ollama API base URL (default: http://127.0.0.1:11434)
   --wheels-dir <DIR>       Offline .whl directory for air-gapped pip install
+  --host-ip <IP>           Explicit host IP for TLS SAN/redirects (auto-detected if omitted)
+  --galera-host <HOST>     Optional MariaDB Galera cluster host (:3306) for HA telemetry
+  --vlan-id <ID>           Optional enclave VLAN ID for operator audit logging
+  --reverse-proxy <URL>    Optional upstream Nginx/Envoy HTTPS/mTLS reverse proxy URL
   --check-only             Run bare-metal, Python, and STIG pre-flight checks only
 HELP
       exit 0 ;;
@@ -230,6 +246,18 @@ fi
 if [[ -n "$BMAS_MODEL_PATH" ]]; then
   log_info "Configured model path / URI: ${BMAS_MODEL_PATH}"
 fi
+[[ -n "$BMAS_HOST_IP" ]] && log_info "Explicit Host IP override: ${BMAS_HOST_IP}"
+[[ -n "$BMAS_GALERA_HOST" ]] && log_info "MariaDB Galera Cluster target: ${BMAS_GALERA_HOST}:3306"
+[[ -n "$BMAS_VLAN_ID" ]] && log_info "Enclave VLAN ID: ${BMAS_VLAN_ID}"
+[[ -n "$BMAS_REVERSE_PROXY" ]] && log_info "Reverse Proxy / TLS Terminator: ${BMAS_REVERSE_PROXY}"
+if command -v piper >/dev/null 2>&1 || [[ -x "${HOME}/.project-ai/ai_env/bin/piper" ]]; then
+  log_ok "Belle Neural Voice Engine (Piper ONNX) detected."
+else
+  log_info "Piper ONNX binary not in default PATH (set BMAS_PIPER_BIN / BMAS_VOICE_MODEL if using TTS)."
+fi
+if command -v sox >/dev/null 2>&1; then
+  log_ok "SoX acoustic DSP engine detected (/usr/bin/sox)."
+fi
 
 # ------------------------------------------------------------------------------
 # 5. Exit if --check-only, Otherwise Launch TRON V18 Command Center
@@ -245,6 +273,10 @@ export BMAS_HOME="$BMAS_DIR"
 export BMAS_PORT="$BMAS_PORT"
 export BMAS_OLLAMA_HOST="$BMAS_OLLAMA_HOST"
 [[ -n "$BMAS_MODEL_PATH" ]] && export BMAS_MODEL_PATH="$BMAS_MODEL_PATH"
+[[ -n "$BMAS_HOST_IP" ]] && export BMAS_HOST_IP="$BMAS_HOST_IP"
+[[ -n "$BMAS_GALERA_HOST" ]] && export BMAS_GALERA_HOST="$BMAS_GALERA_HOST"
+[[ -n "$BMAS_VLAN_ID" ]] && export BMAS_VLAN_ID="$BMAS_VLAN_ID"
+[[ -n "$BMAS_REVERSE_PROXY" ]] && export BMAS_REVERSE_PROXY="$BMAS_REVERSE_PROXY"
 
 log_info "Launching BMAS TRON V18.0.0 on port ${BMAS_PORT}..."
 cd "$BMAS_DIR"

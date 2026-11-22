@@ -1,3 +1,16 @@
+def _bmas_detect_host_ip() -> str:
+    """Resolve active host IP dynamically (honors BMAS_HOST_IP env override)."""
+    import os as _os, socket as _s
+    env_ip = _os.environ.get("BMAS_HOST_IP", "").strip()
+    if env_ip:
+        return env_ip
+    try:
+        with _s.socket(_s.AF_INET, _s.SOCK_DGRAM) as _sock_probe:
+            _sock_probe.connect(("10.255.255.255", 1))
+            return _sock_probe.getsockname()[0]
+    except Exception:
+        return "127.0.0.1"
+
 import os
 BMAS_HOME = os.environ.get("BMAS_HOME", os.path.dirname(os.path.abspath(__file__)))
 import re
@@ -384,7 +397,7 @@ def route_pki_generate():
     rec = pki_vault.generate_appliance_crt_or_csr(
         common_name=data.get("common_name", "bmas-appliance.dod.mil"),
         organization=data.get("organization", "Bare Metal Applied Science LLC"),
-        san_ip=data.get("san_ip", "192.168.1.230"),
+        san_ip=data.get("san_ip") or _bmas_detect_host_ip(),
         generate_mode=data.get("generate_mode", "SELF_SIGNED_CRT")
     )
     return jsonify(rec)
@@ -1477,8 +1490,8 @@ def _get_active_vault_tls_cert_and_key():
     key_file = os.path.join(vault_dir, "bmas_v17_appliance.key")
     if not (os.path.exists(crt_file) and os.path.exists(key_file)):
         rec = pki_vault.generate_appliance_crt_or_csr(
-            common_name="192.168.1.236",
-            san_ip="192.168.1.236",
+            common_name=_bmas_detect_host_ip(),
+            san_ip=_bmas_detect_host_ip(),
             generate_mode="SELF_SIGNED_CRT"
         )
         if rec.get("crt_path") and os.path.exists(rec["crt_path"]) and rec.get("key_path") and os.path.exists(rec["key_path"]):
@@ -1532,7 +1545,7 @@ class _BMASControlPanelSocketGovernance:
                         # Redirect any plain HTTP browser request to https:// automatically!
                         http_redirect = (
                             b"HTTP/1.1 302 Found\r\n"
-                            b"Location: https://192.168.1.236:5000/\r\n"
+                            + f"Location: https://{_bmas_detect_host_ip()}:{os.environ.get('BMAS_PORT', '5000')}/\r\n".encode("utf-8") +
                             b"Connection: close\r\n\r\n"
                         )
                         conn.sendall(http_redirect)
@@ -3823,7 +3836,7 @@ def run_cli_entrypoint():
     print(f"🤝 {COLLABORATOR_ACK}")
     print(f"🛡️  Security Mode : {rbac_mgr.auth_config.get('security_mode')} (Zero-Lockout Lab Default)")
     print(f"🗄️  Database Mode : {db_sentry.backend_type}")
-    print(f"🌐 WebGL HUD URL : http://192.168.1.230:{args.port}  (or http://127.0.0.1:{args.port})")
+    print(f"🌐 WebGL HUD URL : http://{_bmas_detect_host_ip()}:{args.port}  (or http://127.0.0.1:{args.port})")
     print("=" * 78)
 
     app.run(host=args.host, port=args.port, threaded=True, use_reloader=False)
