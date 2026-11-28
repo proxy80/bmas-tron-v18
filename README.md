@@ -221,3 +221,10 @@ Run the built-in pre-flight audit without starting the web server:
 ## HTTP Bring-Up & HTTPS / PKI Lock-Down (DoD / Enterprise)
 - **Initial Bring-Up Mode:** By default, BMAS TRON V18 starts on port `5000` (overridable via `--port` or `BMAS_PORT`) in testing/bring-up mode (`secure_https_mode: false`) so operators can validate local health, wizard setup (`/setup`), and PKI certificate import before enforcing TLS.
 - **Mandatory Lock-Down Before Production / DoD Exposure:** Do not leave an unencrypted HTTP endpoint exposed on untrusted or defense networks. Import/register a server certificate in the PKI vault and enable HTTPS / TLS 1.2+ enforcement via `/api/pki/https_interlock` (`enable_https: true`) or terminate TLS/mTLS at an approved reverse proxy (such as Nginx or Envoy) with accredited certificates and firewall/port restrictions.
+
+---
+
+### 🌐 Enterprise Networking: Dual-Stack IPv4/IPv6 & Multi-VLAN Support
+* **Dual-Stack Binding (`::`):** By default, BMAS TRON V18 binds to `::`, listening across all host IPv4 and IPv6 interfaces, secondary NICs, and 802.1Q VLANs added during or after installation.
+* **Optional VLAN Pinning:** Set `BMAS_BIND_HOST=<interface_ip>` (or pass `--host <interface_ip>`) to restrict the WebGL HUD and API to a specific management VLAN.
+* **Multi-NIC TLS SANs:** The built-in X.509 PKI vault automatically populates Subject Alternative Names (SANs) with all active global IPv4/IPv6 addresses on the host.
